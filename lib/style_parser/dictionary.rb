@@ -9,9 +9,9 @@ module StyleParser
 			@dictionary={}
 
 			database.relations.values.each do |relation|
-				ignore_not_found {
-					relation.member_objects.each { |member| add(relation,member) }
-				}
+				relation_loaded_members(database,relation).each do |member|
+					add(relation,member)
+				end
 			end
 			
 			database.ways.values.each do |way|
@@ -34,6 +34,20 @@ module StyleParser
 				if parent.type=='way' then parent end
 			end
 		end
+		
+		def has_parent_ways(child)
+			parent_objects(child) do |parent|
+				if parent.type=='way' then return true end
+			end
+			false
+		end
+		
+		def num_parent_ways(child)
+			i=0
+			parent_objects(child).count do |parent|
+				parent.type=='way'
+			end
+		end
 
 		private
 		
@@ -45,11 +59,15 @@ module StyleParser
 			end
 		end
 		
-		def ignore_not_found
-			begin
-				yield
-			rescue OSM::NotFoundError
-			end
+		def relation_loaded_members(database,relation)
+            relation.members.collect do |member|
+                obj = case member.type
+                    when 'node'     then database.get_node(member.ref)
+                    when 'way'      then database.get_way(member.ref)
+                    when 'relation' then database.get_relation(member.ref)
+                end
+                obj
+            end.compact
 		end
 
 	end

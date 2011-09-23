@@ -6,10 +6,10 @@ module StyleParser
 			'casing_width','casing_color','casing_opacity','casing_dashes','layer' ];
 			
 		def drawn
-			return (properties['fill_image'] or
-					properties['fill_color'] or
-					properties['width'] or
-					properties['casing_width'])
+			return (defined('fill_image') or
+					defined('fill_color') or
+					defined('width') or
+					defined('casing_width'))
 		end
 
 	end

@@ -4,7 +4,7 @@ module StyleParser
 		PROPNAMES = ['shield_image','shield_width','shield_height'];
 			
 		def drawn
-			return !properties['shield_image'].nil?
+			return defined('shield_image')
 		end
 
 	end

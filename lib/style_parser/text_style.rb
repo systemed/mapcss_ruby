@@ -7,7 +7,7 @@ module StyleParser
 				'letter_spacing'];
 			
 		def drawn
-			return !properties['text'].nil?
+			return defined('text')
 		end
 
 	end

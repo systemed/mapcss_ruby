@@ -34,7 +34,7 @@ You can see an example of this in osm_test.rb.
 
 - It hasn't really been tested at all.
 - The test stylesheet is MapCSS 0.1. That's not too helpful. ;)
-- No evals yet, though these should be pretty trivial to implement in Ruby (not like AS3...).
+- Setting tags from the stylesheet doesn't yet work.
 - Any limitations of Halcyon's parser are also present here.
 - We don't yet handle @import directives for nested CSS files. You'll need to parse these yourself.
 

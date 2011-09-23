@@ -18,3 +18,5 @@ require "style_parser/point_style"
 require "style_parser/shape_style"
 require "style_parser/shield_style"
 require "style_parser/text_style"
+
+require "style_parser/tags_binding"

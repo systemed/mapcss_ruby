@@ -8,6 +8,7 @@ module StyleParser
 			@conditions=[]
 			@minzoom=0
 			@maxzoom=255
+			@isand=true
 		end
 		
 		def test(entity,tags,zoom)
@@ -20,10 +21,10 @@ module StyleParser
 				r=condition.test(tags)
 				if i==0
 					v=r
-				elsif isand
-					v=v and r
+				elsif @isand
+					v=v && r
 				else
-					v=v or r
+					v=v || r
 				end
 				i+=1
 			end

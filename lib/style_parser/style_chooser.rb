@@ -15,14 +15,14 @@ module StyleParser
 		
 		def update_styles(entity, tags, sl, imagewidths, zoom)
 			if (@zoomspecific) then sl.validat=zoom end
-			
+
 			@rulechains.each do |c|
 				if (c.test(-1,entity,tags,zoom))
 					sl.add_subpart(c.subpart)
 					@styles.each do |r|
 						if (r.instance_of? ShapeStyle)
 							a=sl.shapestyles
-							if r.properties['width'] then sl.maxwidth=[sl.maxwidth,r.properties['width'].to_f].max end
+							if r.defined('width') then maxwidth(tags,r,'width') end
 						elsif (r.instance_of? ShieldStyle)
 							a=sl.shieldstyles
 						elsif (r.instance_of? TextStyle)
@@ -30,23 +30,20 @@ module StyleParser
 						elsif (r.instance_of? PointStyle)
 							a=sl.pointstyles
 							w=0
-							if r.properties['icon_width']
-								w=r.properties['icon_width']
-							elsif (r.properties['icon_image'] and imagewidths[r.properties['icon_image']])
-								w.imagewidths[r.properties['icon_image']]
-							end
-							if (w>sl.maxwidth) then sl.maxwidth=w end
+							if r.defined('icon_width') then maxwidth(tags,r,'icon_width') end
+# ** FIXME - imagewidths:::	elsif r.defined('icon_image') and imagewidths[r.get('icon_image')]
+#								w=imagewidths[r.get('icon_image')]
+#							end
 						elsif (r.instance_of? InstructionStyle)
 							if r.breaker then return end
-							if r.settags then r.settags.each { |k,v| tags[k]=v } end
+# ** FIXME - settags:::     if r.settags then r.settags.each { |k,v| tags[k]=v } end
 							next
 						end
 						
-						if (r.drawn) then tags[':drawn']='yes' end
-						tags['_width']=sl.maxwidth
-						
+# ** FIXME - drawn:::	if (r.drawn) then tags[':drawn']='yes' end
+
 						if (a[c.subpart])
-							if (!a[c.subpart].merged) then a[c.subpart]=a[c.subpart].clone end
+							a[c.subpart]=Marshal.load( Marshal.dump(a[c.subpart]))
 							a[c.subpart].merge_with(r)
 						else
 							a[c.subpart]=r
@@ -69,6 +66,12 @@ module StyleParser
 		
 		def to_s
 			"[StyleChooser: rulechains #{@rulechains} | styles #{@styles}]"
+		end
+		
+		private
+		
+		def maxwidth(tags,style,key)
+			if tags.respond_to?('set_maxwidth') then tags.set_maxwidth(style.get(tags,key,0)) end
 		end
 
 	end

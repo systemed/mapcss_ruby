@@ -5,11 +5,14 @@ module StyleParser
 		def initialize(mins, maxs)
 			@minscale = mins
 			@maxscale = maxs
+			@imagewidths = {}
 		end
 		
 		def get_styles(entity, tags, zoom)
-			sl=StyleList.new();
-			@choosers.each { |sc| sc.update_styles(entity, tags, sl, @imagewidths, zoom) }
+			sl=StyleList.new
+			@choosers.each do |sc| 
+				sc.update_styles(entity, tags, sl, @imagewidths, zoom)
+			end
 			sl
 		end
 		
@@ -109,31 +112,25 @@ module StyleParser
 			t={}
 
 			# Create styles
-			ss=ShapeStyle.new()
-			ps=PointStyle.new()
-			ts=TextStyle.new()
-			hs=ShieldStyle.new()
-			xs=InstructionStyle.new()
+			ss=ShapeStyle.new
+			ps=PointStyle.new
+			ts=TextStyle.new
+			hs=ShieldStyle.new
+			xs=InstructionStyle.new
 
 			# Set each property
 			s.split(';').each do |a|
-				if    a=~ASSIGNMENT   then v=$2; k=$1.sub(DASH,'_'); t[k]=v
-				elsif a=~SET_TAG      then xs.add_set_tag($1,$2)
-				elsif a=~SET_TAG_TRUE then xs.add_set_tag($1,true)
-				elsif a=~EXIT         then xs.set_property_from_string('breaker',true)
+				if    a=~ASSIGNMENT      then v=$2; k=$1.sub(DASH,'_'); t[k]=v
+				elsif a=~SET_TAG         then xs.add_set_tag($1,$2)
+				elsif a=~SET_TAG_TRUE    then xs.add_set_tag($1,true)
+				elsif a=~EXIT            then xs.set_property_from_string('breaker',true)
 				end
-				# ** TODO: evals
 			end
-			
+
 			# Find sublayer
 			ss.sublayer=ps.sublayer=ts.sublayer=hs.sublayer=t['z_index'] ? t['z_index'] : 5
 			xs.sublayer=10
 			t.delete('z_index')
-			
-			# Find interactive property
-			inter = true
-			if t['interactive'] =~ FALSE then inter=false end
-			ss.interactive=ps.interactive=ts.interactive=hs.interactive=xs.interactive=inter
 			
 			# Munge special values
 			if t['font_weight'    ] then t['font_bold'     ] = (t['font_weight'    ]=~BOLD     ) ? true:false; t.delete('font_weight'    ) end
@@ -145,19 +142,19 @@ module StyleParser
 			# Assign each property to the appropriate style
 			t.each do |k,v|
 				if k=~COLOR then v=parse_css_color(v) end
-				if    ss.has_property(k) then ss.set_property_from_string(k,v)
-				elsif ps.has_property(k) then ps.set_property_from_string(k,v)
-				elsif ts.has_property(k) then ts.set_property_from_string(k,v)
-				elsif hs.has_property(k) then hs.set_property_from_string(k,v)
+				if    ss.style_defines(k) then ss.set(k,v)
+				elsif ps.style_defines(k) then ps.set(k,v)
+				elsif ts.style_defines(k) then ts.set(k,v)
+				elsif hs.style_defines(k) then hs.set(k,v)
 				end
 			end
 
 			# Add each style to list
-			if (ss.edited) then styles.push(ss) end
-			if (ps.edited) then styles.push(ps) end
-			if (ts.edited) then styles.push(ts) end
-			if (hs.edited) then styles.push(hs) end
-			if (xs.edited) then styles.push(xs) end
+			if (ss.active) then styles.push(ss) end
+			if (ps.active) then styles.push(ps) end
+			if (ts.active) then styles.push(ts) end
+			if (hs.active) then styles.push(hs) end
+			if (xs.active) then styles.push(xs) end
 			styles
 		end
 		
@@ -185,7 +182,7 @@ module StyleParser
 			end
 			nil
 		end
-		
+
 		def parse_css_color(s)
 			s.downcase!
 			if CSSCOLORS[s] then return CSSCOLORS[s] end
@@ -196,7 +193,7 @@ module StyleParser
 			end
 			0
 		end
-
+		
 		# Identifiers for each part of a selector
 
 		ZOOM_OBJECT        = 2

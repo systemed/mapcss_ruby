@@ -18,15 +18,16 @@ module StyleParser
 		end
 		
 		def has_fills
-			@shapestyles.each do |ss|
-				if (ss.properties['fill_color'] or ss.properties['fill_image']) then return true end
+			@shapestyles.each_value do |ss|
+				if ss.defined('fill_color') or ss.defined('fill_image') then return true end
 			end
 			false
 		end
 		
 		def layer_override
-			@shapestyles.each do |ss|
-				if ss.properties['layer'] then return ss.properties['layer'] end
+			@shapestyles.each_value do |ss|
+				if ss.defined('layer') then return ss.get('layer')
+				end
 			end
 			nil
 		end
@@ -42,7 +43,7 @@ module StyleParser
 		end
 		
 		def to_s
-			"shapestyles: #{@shapestyles}\ntextstyles: #{@textstyles}\npointstyles: #{@pointstyles}\nshieldstyles: #{@shieldstyles}\nmaxwidth #{@maxwidth}, valid at #{@validat}\nsubparts: #{@subparts}"
+			"StyleList: SS #{@shapestyles} TS #{@textstyles} PS #{@pointstyles}: maxwidth #{@maxwidth}, valid at #{@validat}: subparts #{@subparts}\n"
 		end
 			
 	end

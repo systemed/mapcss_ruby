@@ -4,7 +4,7 @@ module StyleParser
 		PROPNAMES = ['icon_image','icon_width','icon_height','rotation'];
 			
 		def drawn
-			return !properties['icon_image'].nil?
+			return defined('icon_image')
 		end
 
 	end
