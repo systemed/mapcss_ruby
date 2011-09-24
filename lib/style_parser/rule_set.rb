@@ -120,7 +120,7 @@ module StyleParser
 
 			# Set each property
 			s.split(';').each do |a|
-				if    a=~ASSIGNMENT      then v=$2; k=$1.sub(DASH,'_'); t[k]=v
+				if    a=~ASSIGNMENT      then v=$2; k=$1.gsub(DASH,'_'); t[k]=v
 				elsif a=~SET_TAG         then xs.add_set_tag($1,$2)
 				elsif a=~SET_TAG_TRUE    then xs.add_set_tag($1,true)
 				elsif a=~EXIT            then xs.set_property_from_string('breaker',true)
