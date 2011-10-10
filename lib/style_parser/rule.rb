@@ -12,7 +12,7 @@ module StyleParser
 		end
 		
 		def test(entity,tags,zoom)
-			if (@subject!='' and entity.type!=@subject) then return false end
+			if (@subject!='' and !subject_matches(entity)) then return false end
 			if (zoom<@minzoom or zoom>@maxzoom) then return false end
 			
 			v=true
@@ -29,6 +29,16 @@ module StyleParser
 				i+=1
 			end
 			v
+		end
+		
+		private
+		
+		def subject_matches(entity)
+			if entity.nil? then return @subject=='canvas' end
+			if entity.type==@subject then return true end
+			if @subject=='area' then return (entity is Way) &&  (entity.is_closed?) end
+			if @subject=='line' then return (entity is Way) && !(entity.is_closed?) end
+			return false
 		end
 		
 	end
