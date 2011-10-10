@@ -16,6 +16,16 @@ module StyleParser
 			sl
 		end
 		
+		def parse_from_file(filename)
+			css=IO.read(filename)
+			while css =~ IMPORT
+				directive=$&
+				import=IO.read($1)
+				css.gsub!(directive,import)
+			end
+			parse(css)
+		end
+		
 		def parse(css)
 			previous = 0				# what was the previous CSS item?
 			sc = StyleChooser.new()		# currently being assembled
@@ -240,6 +250,8 @@ module StyleParser
 		SET_TAG			=/\A \s* set \s+(\S+)\s* = \s*          (.+?) \s*                   $/imx
 		SET_TAG_TRUE	=/\A \s* set \s+(\S+)\s* $/imx
 		EXIT			=/\A \s* exit \s* $/imx
+
+		IMPORT			=/@import\s*[^'"]*['"]([^'"]+)['"][^;]*;/im
 
 		DASH=/\-/
 		COLOR=/color$/

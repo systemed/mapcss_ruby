@@ -13,9 +13,8 @@ Install style_parser and style_parser.rb into a lib/ directory. Require style_pa
 
 Read a MapCSS file like this:
 
-	css=IO.read('opencyclemap.css')
 	ruleset=StyleParser::RuleSet.new(12,20)					# 12 and 20 are min/max zoom levels
-	ruleset.parse(css)
+	ruleset.parse_from_file('opencyclemap.css')
 	
 Create the parent object mappings from an OSMlib database:
 
@@ -36,7 +35,6 @@ You can see an example of this in osm_test.rb.
 - The test stylesheet is MapCSS 0.1. That's not too helpful. ;)
 - Setting tags from the stylesheet doesn't yet work.
 - Any limitations of Halcyon's parser are also present here.
-- We don't yet handle @import directives for nested CSS files. You'll need to parse these yourself.
 
 == Licence and author ==
 
