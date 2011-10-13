@@ -6,39 +6,43 @@ module PDFRenderer
 		# - if a value is 'eval(...)', then get the results
 		# _width=0 should be set elsewhere
 
-		def initialize(_entity)
+		def initialize(_entity,_states={})
 			@entity=_entity
 			@tb=get_binding
-			_entity.tags.each { |k,v| self[k]=v }
+			@bindingactive=false
+			@t={}	# simple hash used for faster access (avoiding eval) where possible
+			_entity.tags.each { |k,v| @t[k]=v }
+			_states.each      { |k,v| @t[k]=v }
 		end
 
 		def [](k)
-			k=substitute(k)
-			if !has_key?(k) then return nil end
-			@tb.eval("#{k}")
+			@t[k]
 		end
 		
 		def []=(k,v)
-			k=substitute(k)
-			@tb.eval("#{k}=#{v.dump}")
+			@t[k]=v
+			return unless @bindingactive
+			set_binding(k,v)
 		end
 		
 		def has_key?(k)
-			k=substitute(k)
-			!@tb.eval("defined? #{k}").nil?
+			@t.has_key?(k)
 		end
 		
 		def eval(_exp)
+			if !@bindingactive then initialise_binding end
 			@tb.eval(_exp)
 			# ** this won't cope with anything like 'addr:housenumber+3', because the ':' will break it
 		end
 
 		def set_maxwidth(v)
-			@tb.eval("_width=[_width.to_f,#{v}.to_f].max")
+			width=@tb.eval("[_width.to_f,#{v}.to_f].max")
+			@t['_width']=width
+			if @bindingactive then @tb.eval("_width=#{width}") end
 		end
 
 		def to_s
-			t='TagsBinding:'
+			t="TagsBinding: #{@t} // "
 			@tb.eval("local_variables").each do |k|
 				t+=" #{k}="+@tb.eval("#{k}").to_s
 			end
@@ -47,6 +51,17 @@ module PDFRenderer
 
 		private
 		
+		def initialise_binding
+			@t.each { |k,v| set_binding(k,v) }
+			@bindingactive=true
+		end
+
+		def set_binding(k,v)
+			k=substitute(k)
+			if v.respond_to?('dump') then @tb.eval("#{k}=#{v.dump}")
+			                         else @tb.eval("#{k}=#{v}") end
+		end
+
 		def substitute(k)
 			k.gsub(/\W/, '__')
 		end
