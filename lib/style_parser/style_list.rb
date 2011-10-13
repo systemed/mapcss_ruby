@@ -26,8 +26,7 @@ module StyleParser
 		
 		def layer_override
 			@shapestyles.each_value do |ss|
-				if ss.defined('layer') then return ss.get('layer')
-				end
+				if ss.defined('layer') then return ss.get('layer') end
 			end
 			nil
 		end
